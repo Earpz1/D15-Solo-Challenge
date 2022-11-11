@@ -20,11 +20,10 @@ const addMovie = async function () {
 
   // Create the product object using the values assigned from above
   const newMovie = {
-    name: name, //REQUIRED
-    description: description, //REQUIRED
-    category: genre, //REQUIRED
-    imageUrl:
-      'https://drop.ndtv.com/TECH/product_database/images/2152017124957PM_635_nokia_3310.jpeg?downsize=*:420&output-quality=80', //REQUIRED
+    name: name,
+    description: description,
+    category: genre,
+    imageUrl: imageURL,
   }
   try {
     const response = await fetch(
@@ -138,35 +137,46 @@ const showMovie = function (movie) {
   const newTitle = document.createElement('strong')
   newTitle.innerHTML = movie.name
 
+  const newDescription = document.createElement('div')
+  newDescription.classList.add('col-md-6')
+  newDescription.innerHTML = movie.description
+
   const buttonsCol = document.createElement('div')
-  buttonsCol.classList.add('col-md-8')
+  buttonsCol.classList.add('col-md-2')
 
   const flex = document.createElement('div')
   flex.classList.add('d-flex', 'align-items-right', 'justify-content-end')
 
   const editLink = document.createElement('a')
   editLink.classList.add('text-primary', 'mr-5')
-  editLink.innerText = 'Edit'
   editLink.setAttribute(
     'href',
     'update.html?editMovie=' + movie._id + '&genre=' + movie.category,
   )
 
   const deleteLink = document.createElement('a')
-  deleteLink.classList.add('text-primary', 'mr-5')
-  deleteLink.innerHTML = 'Delete'
+  deleteLink.classList.add('text-danger', 'mr-5')
   deleteLink.setAttribute('href', '?deleteMovie=' + movie._id)
+
+  const deleteIcon = document.createElement('i')
+  deleteIcon.classList.add('fa-solid', 'fa-trash')
+
+  const editIcon = document.createElement('i')
+  editIcon.classList.add('fa-solid', 'fa-pen-to-square')
 
   const linkBreak = document.createElement('hr')
 
   newCol.appendChild(newTitle)
   newRow.appendChild(newCol)
+  newRow.appendChild(newDescription)
   newRow.appendChild(buttonsCol)
   container.appendChild(newRow)
   container.appendChild(linkBreak)
   buttonsCol.appendChild(flex)
   flex.appendChild(editLink)
   flex.appendChild(deleteLink)
+  editLink.appendChild(editIcon)
+  deleteLink.appendChild(deleteIcon)
 }
 
 const deleteMovie = async function () {
@@ -256,6 +266,41 @@ const homePageGenre = async function () {
 }
 
 const homePageMovies = async function (genre) {
+  bodyContainer = document.querySelector('.movies')
+  bodyContainer.innerHTML += `
+  <div class="movie-gallery m-2">
+        <h5 class="text-light mt-2 mb-2">${genre}</h5>
+        <div id="trending-now" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <div class="movie-row">
+                <div class="row" id=${genre}>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+          <button
+            class="carousel-control-prev"
+            type="button"
+            data-bs-target="#trending-now"
+            data-bs-slide="prev"
+          >
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button
+            class="carousel-control-next"
+            type="button"
+            data-bs-target="#trending-now"
+            data-bs-slide="next"
+          >
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+      </div>`
+
   const response = await fetch(
     'https://striveschool-api.herokuapp.com/api/movies/' + genre,
     {
@@ -269,22 +314,16 @@ const homePageMovies = async function (genre) {
   const movies = await response.json()
 
   movies.forEach((element) => {
-    showHomePage(element)
+    const container = document.querySelector('#' + genre)
+
+    const newCol = document.createElement('div')
+    newCol.classList.add('col-md-2')
+
+    const newImage = document.createElement('img')
+    newImage.classList.add('movie-cover')
+    newImage.setAttribute('src', element.imageUrl)
+
+    newCol.appendChild(newImage)
+    container.appendChild(newCol)
   })
-}
-
-let count = 0
-
-const showHomePage = function (movie) {
-  const container = document.querySelector('.row')
-
-  const newCol = document.createElement('div')
-  newCol.classList.add('col-md-2')
-
-  const newImage = document.createElement('img')
-  newImage.classList.add('movie-cover')
-  newImage.setAttribute('src', movie.imageUrl)
-
-  newCol.appendChild(newImage)
-  container.appendChild(newCol)
 }
